@@ -22,30 +22,50 @@ def Singleton(cls):
 class MTransmitter(object):
 	"""docstring for MTransmitter"""
 	def __init__(self):
-		self.wrap = True
+		self.conn = None
+		self.host = ''
+		self.port = 0
+		self.buff = 4096
 
-	def cmdSend(self, msg):
+	def setAddr(self, port, host= None):
+		"""	Set channel address	"""
+		self.host = host if host else 'localhost'
+		self.port = port
+
+	def connTest(self):
+		""" connection test """
+		self.cmdSend('print "[ ! ] This is a test."')
+
+	def cmdSend(self, msg, silent= None):
 		""" Sending cmd msg """
-		result = self._connect()
-		if result == 0:
-			if self.wrap:
-				msg = self._msgWrap(msg)
-			self.conn.send(msg)
-			recv = self.conn.recv(1024)
-			self.conn.close()
-			return recv
+		try:
+			self.conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			self.conn.connect((self.host, self.port))
+		except socket.error, msg:
+			error('Connection Failed. ' \
+				+ 'Error code: %s Error Message: %s' % (str(msg[0]),msg[1]))
+			return None
 		else:
-			return result
+			self._knockknock() if not silent else None
+			self.conn.send(msg)
+			try:
+				recv = self.conn.recv(self.buff)
+			except socket.error, msg:
+				error('Connection Failed. ' \
+					+ 'Error code: %s Error Message: %s' % (str(msg[0]),msg[1]))
+				self.conn.close()
+				return None
+			else:
+				print 'yyyyy'
+				self.conn.close()
+				return recv
 
 	def msgSend(self, msg):
 		""" Sending chat msg """
-		wrap = self.wrap
-		self.wrap = False
 		uid = self._getUser().rjust(8, ' ')
 		dtm = self._getTime(1)
 		msg = 'print "%s | %s : %s"' % (dtm, uid, msg)
-		self.cmdSend(msg)
-		self.wrap = wrap
+		return self.cmdSend(msg, True)
 
 	def imgSend(self):
 		""" Sending viewport snapshot """
@@ -68,37 +88,10 @@ class MTransmitter(object):
 			+ "print 'Snapshot send.'"
 		return self.cmdSend(msg)
 
-	def conTest(self):
-		wrap = self.wrap
-		self.wrap = True
-		self.cmdSend('print "[ ! ] This is a test."')
-		self.wrap = wrap
-		
-	def setAddr(self, port, host= None):
-		"""	Set channel address	"""
-		self.host = host if host else 'localhost'
-		self.port = port
-
-	def setWrap(self, doWrap= None):
-		if doWrap:
-			self.wrap = doWrap
-
-	def _connect(self):
-		try:
-			self.conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			self.conn.connect((self.host, self.port))
-		except socket.error, msg:
-			error('Connection Failed. ' \
-				+ 'Error code: %s Error Message: %s' % (str(msg[0]),msg[1]))
-			return 1
-		else:
-			return 0
-
 	def _fileTrans(self, filePath):
 		""" Send file as string split by 512 """
-		self.wrap = False
 		msg = "global mRemote_buffer; mRemote_buffer= ''"
-		self.cmdSend(msg)
+		self.cmdSend(msg, True)
 		# image to string
 		package = open(filePath, 'r')
 		while True:
@@ -110,26 +103,24 @@ class MTransmitter(object):
 			msg = "global mRemote_buffer\n" \
 				+ "mRemote_tmp = '%s'\n" % pString \
 				+ "mRemote_buffer += mRemote_tmp.decode('base64')"
-			self.cmdSend(msg)
+			self.cmdSend(msg, True)
 		package.close()
-		self.wrap = True
 
-	def _msgWrap(self, msg):
+	def _knockknock(self):
 		cid = self._getHost()
 		uid = self._getUser()
 		pid = self._getPID()
 		dtm = self._getTime()
-		msg = 'print " "\n' \
-			+ 'print "+ "*20\n' \
-			+ 'print "%s"\n' % dtm \
-			+ 'print ". "*20\n' \
-			+ msg + '\n' \
-			+ 'print ". "*20\n' \
-			+ 'print "@ %s"\n' % uid \
-			+ 'print "Sent from %s"\n' % cid \
-			+ 'print "MAYA PID: %s"\n' % pid \
-			+ 'print "- "*20'
-		return msg
+		msg = 'print " \\n" + ' \
+			+ '"+ "*20 + "\\n" + ' \
+			+ '"%s\\n" + ' % dtm \
+			+ '"@ %s\\n" + ' % uid \
+			+ '"Sent from %s\\n" + ' % cid \
+			+ '"MAYA PID: %s\\n" + ' % pid \
+			+ '"- "*20'
+		result = self.cmdSend(msg, True)
+		cmds.pause(sec= 1)
+		return result
 
 	def _getUser(self):
 		return os.environ['username']

@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from pymel.core import *
+import maya.cmds as cmds
 import socket
 
 
@@ -20,12 +20,14 @@ class MReceiver(object):
 		self.host = ''
 		self.port = ''
 		self.maps = {}
+		self.buff = 4096
+		self.echo = True
 
 	def portOpen(self, mode, langue, port= None):
 		self._setMode(mode)
 		self._setPort(port)
-		ipaddr = self._getAddr()
-		commandPort(n= ipaddr, stp= langue)
+		ipaddr = '%s:%s' % (self.host, self.port)
+		cmds.commandPort(n= ipaddr, stp= langue, eo= self.echo, bs= self.buff)
 		self.maps[self.port] = {'ipaddr' : ipaddr,
 								'langue' : langue,
 								'status' : True}
@@ -38,11 +40,10 @@ class MReceiver(object):
 					self.portClose(p)
 			return None
 		ipaddr = self.maps[str(port)]['ipaddr']
-		commandPort(n= ipaddr, cl= 1)
-		if not commandPort(ipaddr, q= 1):
-			self.maps[str(port)]['status'] = False
+		self.maps[str(port)]['status'] = False
+		cmds.commandPort(n= ipaddr, cl= 1)
 
-	def portCheck(self):
+	def listPorts(self):
 		def _printPort(portDict, s):
 			for p in portDict:
 				l = portDict[p]['langue']
@@ -71,7 +72,7 @@ class MReceiver(object):
 	def _setMode(self, mode):
 		if mode == 'LAN':
 			self.host = socket.gethostbyname(socket.gethostname())
-		if mode == 'local':
+		else:
 			self.host = 'localhost'
 
 	def _setPort(self, port):
@@ -84,6 +85,3 @@ class MReceiver(object):
 		s.listen(1)
 		self.port = str(s.getsockname()[1])
 		s.close()
-
-	def _getAddr(self):
-		return '%s:%s' % (self.host, self.port)
