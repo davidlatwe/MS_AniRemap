@@ -6,7 +6,6 @@ import socket
 
 def Singleton(cls):
 	instances = {}
-	
 	def Instance():
 		if cls not in instances:
 			instances[cls] = cls()
@@ -14,23 +13,22 @@ def Singleton(cls):
 	return Instance
 
 @Singleton
-class MReceiver(object):
-	"""docstring for MReceiver"""
+class PointB(object):
+	"""docstring for Receiver"""
 	def __init__(self):
 		self.host = ''
-		self.port = ''
+		self.port = 0
+		self.buff = 8192
 		self.maps = {}
-		self.buff = 4096
-		self.echo = True
 
 	def portOpen(self, mode, langue, port= None):
-		self._setMode(mode)
-		self._setPort(port)
-		ipaddr = '%s:%s' % (self.host, self.port)
-		cmds.commandPort(n= ipaddr, stp= langue, eo= self.echo, bs= self.buff)
-		self.maps[self.port] = {'ipaddr' : ipaddr,
-								'langue' : langue,
-								'status' : True}
+		self._setDomain(mode)
+		self._setPortal(port)
+		ipaddr = '%s:%d' % (self.host, self.port)
+		cmds.commandPort(n= ipaddr, stp= langue, eo= 0, bs= self.buff)
+		self.maps[str(self.port)] = {'ipaddr' : ipaddr,
+									 'langue' : langue,
+									 'status' : True}
 		return ipaddr
 
 	def portClose(self, port):
@@ -69,13 +67,13 @@ class MReceiver(object):
 				port_off[p]= self.maps[p]
 		return port_on, port_off
 
-	def _setMode(self, mode):
+	def _setDomain(self, mode= None):
 		if mode == 'LAN':
 			self.host = socket.gethostbyname(socket.gethostname())
 		else:
-			self.host = 'localhost'
+			self.host = ''
 
-	def _setPort(self, port):
+	def _setPortal(self, port= None):
 		""" get free port """
 		if port:
 			self.port = port
@@ -83,5 +81,5 @@ class MReceiver(object):
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		s.bind(('',0))
 		s.listen(1)
-		self.port = str(s.getsockname()[1])
+		self.port = s.getsockname()[1]
 		s.close()
