@@ -66,7 +66,7 @@ class PointA(object):
 		nam = func.__name__
 		doc = func.__doc__
 		doc = json.dumps(doc.rstrip('\n\t') if doc else '')
-		arg = json.dumps(args)
+		arg = json.dumps(args).replace('true', 'True').replace('false', 'False')
 		tf = marshal.dumps(func.func_code)
 		tf = base64.b64encode(tf)
 		msg = "# Teleporting Python Function\n" \

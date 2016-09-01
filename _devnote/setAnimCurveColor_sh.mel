@@ -1,0 +1,1 @@
+string $curves[] = `findActiveAnimCurves graphEditor1OutlineEd`;for ($curve in $curves){setAttr ($curve + ".useCurveColor") 1;};

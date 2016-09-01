@@ -1,0 +1,103 @@
+//+
+//************************************************************************
+//
+// Synopsis:
+// global proc int colourSelectedCurves( int $how, float $r,
+// float $g, float $b )
+//
+// Description:
+// This MEL procedure assigns a curve display color to all
+// selected curves and curves connected to selected nodes. The curve display
+// color is used for drawing curves in the Graph Editor and for labelling
+// curves in the Dope Sheet.
+// The following example creates a cube, torus, and sphere, animates them by
+// creating translation curves for each, then selects the cube and sphere and
+// sets their curve colors as magenta. 
+// If you then select all three objects and open the Graph Editor, the curves
+// associated with the cube and sphere appear magenta and the curves
+// associated with the torus appear their default colours.
+// Parameters:
+// int $how : (in) Specifies how the "useCurveColour"
+// attribute is set for each curve.
+// If 1, curves will display with the
+// newly assigned colour; if 0, curves
+// will display in default colour.
+// float $r : (in) Red component of colour to assign.
+// float $g : (in) Green component of colour to assign.
+// float $b : (in) Blue component of colour to assign.
+//
+// Returns:
+// int numCurves : Returns the number of curves a colour
+// was assigned to.
+//
+//************************************************************************
+//-
+global proc int colourSelectedCurves( int $how, float $r, float $g, float $b )
+{
+	 int $count;
+	 int $i;
+	 int $j;
+	 // Get the list of selected nodes.
+	 //
+	 string $selectionList[] = `ls -sl`;
+	 // Assign colours based on the selected set of nodes.
+	 //
+	 $count = 0;
+	 for ( $i = 0; $i < size( $selectionList ); $i++ ) {
+		 string $s = $selectionList[$i];
+		 string $isCurve[] = `ls -type "animCurve" $s`;
+		 if ( size( $isCurve ) != 0 ) {
+			 // A curve is selected: assign it the specified colour.
+			 //
+			 setAttr ($s + ".useCurveColor") $how;
+			 setAttr ($s + ".curveColorR") $r;
+			 setAttr ($s + ".curveColorG") $g;
+			 setAttr ($s + ".curveColorB") $b;
+			 $count++;
+		 } else {
+			 // A non-curve node is selected: assign all curves which
+			 // are directly connected to it the specified colour.
+			 //
+			 string $connectedNodes[] = `listConnections $s`;
+		 for ( $j = 0; $j < size( $connectedNodes ); $j++ ) {
+		 string $c = $connectedNodes[$j];
+		 string $isCurve[] = `ls -type "animCurve" $c`;
+		 if ( size( $isCurve ) != 0 ) {
+		 // We are connected to a curve; assign it the
+		 // specified curve colour.
+		 //
+		 setAttr ($c + ".useCurveColor") $how;
+		 setAttr ($c + ".curveColorR") $r;
+		 setAttr ($c + ".curveColorG") $g;
+		 setAttr ($c + ".curveColorB") $b;
+		 $count++;
+		 // Return the number of curves we set the colour on.
+		 //
+		 return( $count );
+Here is an example of how to test the above procedure:
+// Create three animated objects
+//
+string $c[] = `polyCube`;
+move 10 2 3;
+setKeyframe ($c[0]+".t");
+currentTime 16;
+move 10 -2 3;
+setKeyframe ($c[0]+".t");
+string $t[] = `torus`;
+currentTime 1;
+move -10 -2 -3;
+setKeyframe ($t[0]+".t");
+currentTime 16;
+move 10 -2 -3;
+setKeyframe ($t[0]+".t");
+string $s[] = `sphere`;
+currentTime 1;
+move -10 -2 3;
+setKeyframe ($s[0]+".t");
+currentTime 16;
+move 10 -2 -3;
+setKeyframe ($s[0]+".t");
+// Set the colour of the cube and sphere to magenta,
+//
+select $c[0] $s[0];
+colourSelectedCurves( 1, 1.0, 0.0, 1.0 );
