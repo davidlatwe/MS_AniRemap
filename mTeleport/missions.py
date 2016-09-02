@@ -16,6 +16,9 @@ def imgSend(pointA):
 	view.readColorBuffer(snapShot, True)
 	snapShot.writeToFile(imgPath, 'jpg')
 	# function for unpack to renderview
+	mod = '''
+	import os
+	'''
 	def unpackImg():
 		'''Write string to image and open in renderview'''
 		imgPath = os.environ['tmpdir'] + '/mRSnapShot_Grab.jpg'
@@ -29,7 +32,7 @@ def imgSend(pointA):
 		print 'Snapshot send.'
 		return 0
 	# start sending
-	return pointA.sendall(filePath= imgPath, postFunc= unpackImg)
+	return pointA.sendall(filePath= imgPath, postFunc= unpackImg, mod= mod)
 
 def msgSend(pointA, msg):
 	""" Sending chat msg """

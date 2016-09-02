@@ -1,5 +1,7 @@
+# -*- coding:utf-8 -*-
 
 import pymel.core as pm
+
 
 def amcveProfile(cvSrc):
 	"""
@@ -28,7 +30,6 @@ def amcveProfile(cvSrc):
 			'InAng' : pm.keyTangent(cvSrc, q= 1, inAngle= 1),
 			'OuAng' : pm.keyTangent(cvSrc, q= 1, outAngle= 1)
 	}
-
 	cvSrcProfile = {
 			'cvBaseMod' : cvBaseMod,
 			'cvPortray' : cvPortray,
