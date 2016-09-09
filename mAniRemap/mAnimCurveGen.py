@@ -3,10 +3,18 @@
 import pymel.core as pm
 
 
-def amcveProfile(cvSrc):
+def amcveProfile(cvSrc, trim):
 	"""
 	"""
 	cvSrc = pm.ls(cvSrc)[0]
+	tiLen = []
+
+	if trim:
+		tiLen.append(pm.playbackOptions(q= 1, min= 1))
+		tiLen.append(pm.playbackOptions(q= 1, max= 1))
+		pm.undoInfo(ock= 1)
+		pm.setKeyframe(cvSrc, insert= 1, t= tiLen, f= tiLen)
+		pm.undoInfo(cck= 1)
 
 	cvBaseMod = {
 			'cvTyp' : pm.objectType(cvSrc),
@@ -31,16 +39,21 @@ def amcveProfile(cvSrc):
 			'OuAng' : pm.keyTangent(cvSrc, q= 1, outAngle= 1)
 	}
 	cvSrcProfile = {
+			'cvTrimmed' : tiLen,
 			'cvBaseMod' : cvBaseMod,
 			'cvPortray' : cvPortray,
 			'cvFeature' : cvFeature
 	}
+	if trim:
+		pm.undo()
 
 	return cvSrcProfile
+
 
 def amcveRebuild(cvNew, cvSrcProfile):
 	"""
 	"""
+	cvTrimmed = cvSrcProfile['cvTrimmed']
 	cvBaseMod = cvSrcProfile['cvBaseMod']
 	cvPortray = cvSrcProfile['cvPortray']
 	cvFeature = cvSrcProfile['cvFeature']
@@ -55,6 +68,8 @@ def amcveRebuild(cvNew, cvSrcProfile):
 	cvInp = cvPortray['Frame'] + cvPortray['Float']
 	# set value to each keyframe
 	for i, x in enumerate(cvInp):
+		if cvTrimmed and (x < cvTrimmed[0] or x > cvTrimmed[1]):
+			continue
 		# whatever this animationCurve is time-base or float-base,
 		# just set both, the one incorrect will take no effect.
 		y = cvPortray['Value'][i]
@@ -68,9 +83,13 @@ def amcveRebuild(cvNew, cvSrcProfile):
 	pm.keyTangent(cvNew, wt= weedT)
 	if weedT:
 		for i, x in enumerate(cvInp):
+			if cvTrimmed and (x < cvTrimmed[0] or x > cvTrimmed[1]):
+				continue
 			WLock = cvFeature['WLock'][i]
 			pm.keyTangent(cvNew, index= [i], wl= WLock)
 	for i, x in enumerate(cvInp):
+		if cvTrimmed and (x < cvTrimmed[0] or x > cvTrimmed[1]):
+			continue
 		pm.keyTangent(cvNew, index= [i], l= cvFeature['TLock'][i])
 		pm.keyTangent(cvNew, index= [i], iw= cvFeature['InWet'][i])
 		pm.keyTangent(cvNew, index= [i], ow= cvFeature['OuWet'][i])
