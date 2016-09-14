@@ -97,3 +97,5 @@ def amcveRebuild(cvNew, cvSrcProfile):
 		pm.keyTangent(cvNew, index= [i], oa= cvFeature['OuAng'][i])
 		pm.keyTangent(cvNew, index= [i], itt= cvFeature['InTyp'][i])
 		pm.keyTangent(cvNew, index= [i], ott= cvFeature['OuTyp'][i])
+
+	return cvNew

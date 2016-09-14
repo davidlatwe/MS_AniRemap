@@ -78,7 +78,7 @@ class PointA(object):
 		# because of json made boolean value lowercase,
 		# convert args tuple to string before json dumps
 		arg = json.dumps(str(args))
-		mod = json.dumps(kwargs['mod'].strip()) if kwargs.has_key('mod') else ''
+		mod = json.dumps(kwargs['mod'].replace('\t','').strip()) if kwargs.has_key('mod') else ''
 		tf = marshal.dumps(func.func_code)
 		tf = base64.b64encode(tf)
 		msg = "# Teleporting Python Function\n" \
