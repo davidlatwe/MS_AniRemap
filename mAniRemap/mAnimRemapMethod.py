@@ -1,17 +1,18 @@
 # -*- coding:utf-8 -*-
 
 import pymel.core as pm
-import re
 import mAnimCurveGen as cg; reload(cg)
+import mAnimRemapType as mt; reload(mt)
 
 
-def lsController(sel= None):
+def lsController(sel, localDis= None):
 	"""
 	回傳所選取物件底下的所有 nurbsCurve 清單，
 	或只回傳所選取的 nurbsCurve
 	"""
-	ad = False if sel else True
-	searchRange = pm.listRelatives(pm.ls(sl= 1), ad= ad, typ= 'nurbsCurve')
+	ad = not sel
+	dag = localDis if localDis else pm.ls(sl= 1)
+	searchRange = pm.listRelatives(dag, ad= ad, typ= 'nurbsCurve')
 	ctrlList = [str(c.getParent().name()) for c in searchRange]
 
 	return ctrlList
@@ -55,44 +56,13 @@ def keyController(ctrlList):
 	return ctrlKey
 
 
-def remapNameMatch(src, dis):
+def drawKeyMap(remapType, src, dis):
 	"""
 	"""
-	def rmNS(dagPath):
-		''' clean up src namespace and leave basename '''
-		return '|'.join([ dag.split(':')[-1] for dag in dagPath.split('|') ])
-
-	keyMap = {}
-	for ctrl in src:
-		ctrlBN = rmNS(ctrl)
-		reNS = '.*:' + ctrlBN.replace('|', '\|.*:')
-		reBN = ctrlBN.replace('|', '\|')
-		regex = re.compile(reNS + '|' + reBN)
-		found = [m.group(0) for d in dis for m in [regex.search(d)] if m]
-		if found:
-			if len(found) == 1:
-				# found only one match - great!
-				keyMap[ctrl] = found[0]
-			else:
-				# found more than one match
-				pass
-		else:
-			# no match found
-			pass
-
-	return keyMap
-
-
-def remapSelectOrder(src, dis):
-	"""
-	"""
-	keyMap = {}
-	for i, ctrl in enumerate(src):
-		if i < len(dis):
-			keyMap[ctrl] = dis[i]
-		else:
-			# dis traget number is less than src, key lose
-			pass
+	if remapType == 'name':
+		keyMap = mt.remapNameMatch(src, dis)
+	if remapType == 'order':
+		keyMap = mt.remapSelectOrder(src, dis)
 
 	return keyMap
 
@@ -107,17 +77,34 @@ def packup(ctrlAttr, tirm):
 	return cvp
 
 
-def wireup(cvp, ctrl):
+def wireup(cvp, ctrl, scale):
 	"""
 	"""
+	def spaceScale(attr, cvNew, scale):
+		"""
+		"""
+		# Translate
+		if attr.startswith('translate'):
+			pm.scaleKey(cvNew, vs= scale, vp= 0, ssk= False)
+		# Scale
+		if attr.startswith('scale'):
+			pm.scaleKey(cvNew, vs= scale, vp= 1, ssk= False)
+
+
 	for cat in cvp:
 		attr = cat.split('.')[1]
 		if pm.attributeQuery(attr, node= ctrl, exists= True):
 			disCat = ctrl + '.' + attr
 			if not pm.connectionInfo(disCat, id= True):
+				lock = False
 				if pm.getAttr(disCat, l= True):
+					lock = True
 					pm.setAttr(disCat, l= False)
 				cvNew = cg.amcveRebuild(cat.replace('.', '_'), cvp[cat])
 				pm.connectAttr(cvNew.output, disCat)
+				if scale:
+					spaceScale(attr, cvNew, scale)
+				if lock:
+					pm.setAttr(disCat, l= True)
 			else:
 				pass

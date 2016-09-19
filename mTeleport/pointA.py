@@ -28,6 +28,7 @@ class PointA(object):
 		self.port = 0
 		self.buff = 8192
 		self.beam = 'socket object'
+		self.silent = False
 
 	def setCoord(self, port, host= None):
 		"""	Set channel address	"""
@@ -41,7 +42,7 @@ class PointA(object):
 	def cmdSend(self, msg, silent= None):
 		""" Sending cmd msg """
 		if len(msg) <= self.buff:
-			if not silent:
+			if not (silent or self.silent):
 				self.profileA(msg)
 			try:
 				self.beam = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
