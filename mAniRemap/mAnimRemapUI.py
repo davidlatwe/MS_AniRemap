@@ -56,10 +56,12 @@ def ui_main():
 	switchUI(120, 24, 'Source', 'Target', 1)
 	pm.setParent('..')
 	pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'])
-	pm.text('Machine : ')
-	switchUI(120, 24, 'Remote', 'Local', 0)
+	pm.text('Mode : ')
+	switchUI(120, 24, 'Network', 'Local', 0)
 	pm.setParent('..')
 	pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'])
+
+	#
 	pm.text('Maya : ')
 	switchUI(120, 24, 'Cross', 'Alone', 1)
 	pm.setParent('..')
