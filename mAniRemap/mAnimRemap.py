@@ -6,6 +6,9 @@ import mAnimRemapMethod as md; reload(md)
 
 def remoteRemap(tel, remapType, tirm, sel_src, sel_dis, scale= None):
 	"""
+	rd = pA.PointA()
+	rd.setCoord(3855)
+	mr.remoteRemap(rd, 'name', True, False, False, 0.1)
 	"""
 	# src ctrl keys
 	ctrlList_src = md.lsController(sel_src)
@@ -34,6 +37,8 @@ def remoteRemap(tel, remapType, tirm, sel_src, sel_dis, scale= None):
 def localRemap(dis, remapType, tirm, sel_src, sel_dis, scale= None):
 	"""
 	### preselect dis, than select src
+	dis = 'TVbuddy_rigging_master3:TVbuddyV1'
+	mr.localRemap(dis, 'order', True, False, False)
 	"""
 	# src ctrl keys
 	ctrlList_src = md.lsController(sel_src)

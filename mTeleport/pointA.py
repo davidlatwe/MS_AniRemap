@@ -3,6 +3,7 @@
 import maya.cmds as cmds
 from datetime import datetime
 from cStringIO import StringIO
+import getpass
 import socket
 import marshal
 import base64
@@ -162,8 +163,8 @@ class PointA(object):
 		msg = 'print " \\n" + ' \
 			+ '"+ "*20 + "\\n" + ' \
 			+ '"%s\\n" + ' % self.getTime() \
-			+ '"@ %s\\n" + ' % os.environ['username'] \
-			+ '"Sent from %s\\n" + ' % os.environ['computername'] \
+			+ '"@ %s\\n" + ' % getpass.getuser() \
+			+ '"Sent from %s\\n" + ' % socket.gethostname() \
 			+ '"MAYA PID: %s\\n" + ' % os.getpid() \
 			+ '"CMD:\\n" + ' \
 			+ json.dumps(msg) + ' + "\\n" + ' \
