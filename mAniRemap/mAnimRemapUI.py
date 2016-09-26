@@ -2,6 +2,7 @@
 
 import pymel.core as pm
 from functools import partial
+import mQtGui; reload(mQtGui)
 import mQtGui.muiSwitchBox as mqsb; reload(mqsb)
 import mQtGui.mGetQt as mqt; reload(mqt)
 import mTeleport; reload(mTeleport)
@@ -32,6 +33,12 @@ def ui_main():
 	QBannerTxt = mqt.convert(bannerTxt)
 	QBannerTxt.setStyleSheet('QObject {font: bold 42px; color: #222222;}')
 	pm.setParent('..')
+
+	versioArea = pm.columnLayout(adj= 1)
+	versioTxt = pm.text(l= 'v'+mAniRemap.__version__)
+	QVersioTxt = mqt.convert(versioTxt)
+	QVersioTxt.setStyleSheet('QObject {font: bold 10px; color: #777777;}')
+	pm.setParent('..')
 	
 	sep______1 = pm.separator(st= 'in', w= dockWidth - 8)
 
@@ -39,27 +46,32 @@ def ui_main():
 	QpanelTxt_1 = mqt.convert(panelTxt_1)
 	QpanelTxt_1.setStyleSheet('QObject {font: 12px; color: #777777;}')
 
-	trans_Area = pm.columnLayout(adj= 1, rs= 5)
+	trans_Area = pm.columnLayout(adj= 1, rs= 2)
 
-	maya_group = pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'])
-	pm.text('Maya : ')
-	cmA= pm.columnLayout()
-	maya_mqsb = mqsb.SwitchBox(onl= 'Cross', ofl= 'Alone', w= 140, v= True, p= cmA)
-	pm.setParent('..')
-	pm.setParent('..')
-
-	mode_group = pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'])
-	pm.text('Mode : ')
-	cmB = pm.columnLayout()
-	mode_mqsb = mqsb.SwitchBox(onl= 'Network', ofl= 'Local', w= 140, p= cmB)
-	pm.setParent('..')
-	pm.setParent('..')
-
-	role_group = pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'])
-	pm.text('Role : ')
+	role_group = pm.columnLayout(adj= 1, rs= 2)
+	pm.text('Role', al= 'left')
 	cmC = pm.columnLayout()
-	role_mqsb = mqsb.SwitchBox(onl= 'Source', ofl= 'Target', w= 140, v= True, p= cmC)
+	role_mqsb = mqsb.SwitchBox(onl= 'Source', ofl= 'Target', w= dockWidth - 42, h= 28, v= True, \
+		p= cmC, ofbg= [148, 106, 68], onbg= [72, 120, 138])
 	pm.setParent('..')
+	pm.setParent('..')
+
+	pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'])
+
+	maya_group = pm.columnLayout(adj= 1, rs= 2)
+	pm.text('Maya', al= 'left')
+	cmA= pm.columnLayout()
+	maya_mqsb = mqsb.SwitchBox(onl= 'Cross', ofl= 'Alone', w= (dockWidth-46)/2, h= 20, v= True, p= cmA)
+	pm.setParent('..')
+	pm.setParent('..')
+
+	mode_group = pm.columnLayout(adj= 1, rs= 2)
+	pm.text('Mode', al= 'left')
+	cmB = pm.columnLayout()
+	mode_mqsb = mqsb.SwitchBox(onl= 'LAN', ofl= 'Local', w= (dockWidth-46)/2, h= 20, p= cmB)
+	pm.setParent('..')
+	pm.setParent('..')
+
 	pm.setParent('..')
 
 	pm.setParent('..')
@@ -76,7 +88,7 @@ def ui_main():
 	targetAlone = pm.columnLayout(adj= 1, rs= 5, vis= 0)
 	trg_sls = pm.textScrollList(w= 180, h= 50)
 	pm.rowLayout(nc= 3, adj= 1, cal= [1, 'right'])
-	svt_btn = pm.button(l= 'Save Target')
+	svt_btn = pm.button(l= 'Save Target', bgc= [0.40, 0.37, 0.31])
 	adt_btn = pm.button(l= '+', w= 20)
 	rmt_btn = pm.button(l= '-', w= 20)
 	pm.setParent('..')
@@ -92,11 +104,11 @@ def ui_main():
 	tcPort_txt = pm.textField(w= 140)
 	pm.setParent('..')
 	srcAddr = pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'])
-	ch_btn = pm.button(l= 'Check')
+	ch_btn = pm.button(l= 'Connect', bgc= [0.40, 0.37, 0.31])
 	ps_btn = pm.button(l= 'Paste', w= 50)
 	pm.setParent('..')
 	disAddr = pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'], vis= 0)
-	op_btn = pm.button(l= 'Open')
+	op_btn = pm.button(l= 'Open', bgc= [0.40, 0.37, 0.31])
 	cp_btn = pm.button(l= 'Copy', w= 50)
 	pm.setParent('..')
 	pm.setParent('..')
@@ -121,21 +133,24 @@ def ui_main():
 	tirm_group = pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'])
 	pm.text('Time : ')
 	cmD = pm.columnLayout()
-	tirm_mqsb = mqsb.SwitchBox(onl= 'Slider', ofl= 'Entire', w= 120, h= 18, v= True, p= cmD)
+	tirm_mqsb = mqsb.SwitchBox(onl= 'Slider', ofl= 'Entire', w= 120, h= 18, v= True, \
+		p= cmD, ofbg= [62, 58, 60], onbg= [88, 90, 95])
 	pm.setParent('..')
 	pm.setParent('..')
 
 	hSrc_group = pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'])
 	pm.text('Source : ')
 	cmE = pm.columnLayout()
-	hSrc_mqsb = mqsb.SwitchBox(onl= 'Hierachy', ofl= 'Selected', w= 120, h= 18, v= True, p= cmE)
+	hSrc_mqsb = mqsb.SwitchBox(onl= 'Hierachy', ofl= 'Selected', w= 120, h= 18, v= True, \
+		p= cmE, ofbg= [62, 58, 60], onbg= [88, 90, 95])
 	pm.setParent('..')
 	pm.setParent('..')
 
 	hTrg_group = pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'])
 	pm.text('Target : ')
 	cmF = pm.columnLayout()
-	hTrg_mqsb = mqsb.SwitchBox(onl= 'Hierachy', ofl= 'Selected', w= 120, h= 18, v= True, p= cmF)
+	hTrg_mqsb = mqsb.SwitchBox(onl= 'Hierachy', ofl= 'Selected', w= 120, h= 18, v= True, \
+		p= cmF, ofbg= [62, 58, 60], onbg= [88, 90, 95])
 	pm.setParent('..')
 	pm.setParent('..')
 
@@ -154,16 +169,17 @@ def ui_main():
 	pm.setParent('..')
 
 
-	pm.formLayout(mainForm, e= 1, af= [(bannerArea, 'top', 0)])
+	pm.formLayout(mainForm, e= 1, af= [(bannerArea, 'top', -6)])
+	pm.formLayout(mainForm, e= 1, af= [(versioArea, 'top', 40), (versioArea, 'right', 50)])
 	pm.formLayout(mainForm, e= 1, af= [(sep______1, 'top', 58)])
 	pm.formLayout(mainForm, e= 1, af= [(panelTxt_1, 'top', 64)])
 	pm.formLayout(mainForm, e= 1, af= [(trans_Area, 'top', 84), (trans_Area, 'left', 15)])
 	pm.formLayout(mainForm, e= 1, af= [(sep______2, 'top', 182)])
 	pm.formLayout(mainForm, e= 1, af= [(panelTxt_2, 'top', 188)])
-	pm.formLayout(mainForm, e= 1, af= [(targe_Area, 'top', 210), (targe_Area, 'left', 15)])
+	pm.formLayout(mainForm, e= 1, af= [(targe_Area, 'top', 210), (targe_Area, 'left', 31)])
 	pm.formLayout(mainForm, e= 1, af= [(sep______3, 'top', 304)])
 	pm.formLayout(mainForm, e= 1, af= [(panelTxt_3, 'top', 310)])
-	pm.formLayout(mainForm, e= 1, af= [(remap_Area, 'top', 332), (remap_Area, 'left', 15)])
+	pm.formLayout(mainForm, e= 1, af= [(remap_Area, 'top', 332), (remap_Area, 'left', 20)])
 	pm.formLayout(mainForm, e= 1, af= [(sep______4, 'top', 468)])
 	pm.formLayout(mainForm, e= 1, af= [(exect_Area, 'top', 476), (exect_Area, 'left', 10)])
 
@@ -171,8 +187,8 @@ def ui_main():
 	def maya_mqsb_switch(status, *args):
 		pm.columnLayout(targetAlone, e= 1, vis= 0 if status else 1)
 		pm.columnLayout(targetCross, e= 1, vis= 1 if status else 0)
-		pm.rowLayout(mode_group, e= 1, en= 1 if status else 0)
-		pm.rowLayout(role_group, e= 1, en= 1 if status else 0)
+		pm.columnLayout(mode_group, e= 1, en= 1 if status else 0)
+		pm.columnLayout(role_group, e= 1, en= 1 if status else 0)
 		if status:
 			pm.columnLayout(remap_Area, e= 1, en= 1 if role_mqsb.isChecked() else 0)
 			pm.columnLayout(exect_Area, e= 1, en= 1 if role_mqsb.isChecked() else 0)
