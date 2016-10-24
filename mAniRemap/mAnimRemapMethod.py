@@ -12,8 +12,8 @@ def lsController(sel, localDis= None):
 	"""
 	ad = not sel
 	dag = localDis if localDis else pm.ls(sl= 1)
-	searchRange = pm.listRelatives(dag, ad= ad, typ= 'nurbsCurve')
-	ctrlList = [str(c.getParent().name()) for c in searchRange]
+	searchRange = pm.listRelatives(dag, ad= ad, s= 1, f= 1, typ= 'nurbsCurve')
+	ctrlList = list(set([str(c.getParent().fullPath()) for c in searchRange]))
 
 	return ctrlList
 
@@ -77,7 +77,7 @@ def packup(ctrlAttr, tirm):
 	return cvp
 
 
-def wireup(cvp, ctrl, scale):
+def wireup(cvp, ctrl, scale, mirror):
 	"""
 	"""
 	def spaceScale(attr, cvNew, scale):
@@ -89,6 +89,16 @@ def wireup(cvp, ctrl, scale):
 		# Scale
 		if attr.startswith('scale'):
 			pm.scaleKey(cvNew, vs= scale, vp= 1, ssk= False)
+
+	def keyMirror(attr, cvNew, mirror):
+		"""
+		"""
+		# Translate
+		if attr.startswith('translate' + mirror):
+			pm.scaleKey(cvNew, vs= -1, vp= 0, ssk= False)
+		# Rotation
+		if attr.startswith('rotate' + mirror):# and not attr.startswith('rotate' + mirror):
+			pm.scaleKey(cvNew, vs= -1, vp= 0, ssk= False)
 
 
 	for cat in cvp:
@@ -104,6 +114,8 @@ def wireup(cvp, ctrl, scale):
 				pm.connectAttr(cvNew.output, disCat)
 				if scale:
 					spaceScale(attr, cvNew, scale)
+				if mirror:
+					keyMirror(attr, cvNew, mirror)
 				if lock:
 					pm.setAttr(disCat, l= True)
 			else:

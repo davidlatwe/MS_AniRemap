@@ -123,40 +123,46 @@ def ui_main():
 
 	remap_Area = pm.columnLayout(adj= 1, rs= 5)
 	
-	pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'])
-	pm.text('Match : ')
+	pm.rowLayout(nc= 2, cal= [1, 'right'], h= 20)
+	pm.text('Match : ', w= 45, al= 'right')
 	match_mnu = pm.optionMenu(w= 120)
 	pm.menuItem('name')
 	pm.menuItem('order')
 	pm.setParent('..')
 
-	tirm_group = pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'])
-	pm.text('Time : ')
+	tirm_group = pm.rowLayout(nc= 2, adj= 2, cal= [1, 'right'], h= 20)
+	pm.text('Time : ', w= 45, al= 'right')
 	cmD = pm.columnLayout()
-	tirm_mqsb = mqsb.SwitchBox(onl= 'Slider', ofl= 'Entire', w= 120, h= 18, v= True, \
+	tirm_mqsb = mqsb.SwitchBox(onl= 'Slider', ofl= 'Entire', w= 120, h= 18, v= False, \
 		p= cmD, ofbg= [62, 58, 60], onbg= [88, 90, 95])
 	pm.setParent('..')
 	pm.setParent('..')
 
-	hSrc_group = pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'])
-	pm.text('Source : ')
+	hSrc_group = pm.rowLayout(nc= 2, adj= 2, cal= [1, 'right'], h= 20)
+	pm.text('Source : ', w= 45, al= 'right')
 	cmE = pm.columnLayout()
 	hSrc_mqsb = mqsb.SwitchBox(onl= 'Hierachy', ofl= 'Selected', w= 120, h= 18, v= True, \
 		p= cmE, ofbg= [62, 58, 60], onbg= [88, 90, 95])
 	pm.setParent('..')
 	pm.setParent('..')
 
-	hTrg_group = pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'])
-	pm.text('Target : ')
+	hTrg_group = pm.rowLayout(nc= 2, adj= 2, cal= [1, 'right'], h= 20)
+	pm.text('Target : ', w= 45, al= 'right')
 	cmF = pm.columnLayout()
 	hTrg_mqsb = mqsb.SwitchBox(onl= 'Hierachy', ofl= 'Selected', w= 120, h= 18, v= True, \
 		p= cmF, ofbg= [62, 58, 60], onbg= [88, 90, 95])
 	pm.setParent('..')
 	pm.setParent('..')
 
-	pm.rowLayout(nc= 2, adj= 1, cal= [1, 'right'])
-	pm.text('Scale : ')
+	pm.rowLayout(nc= 2, cal= [1, 'right'], h= 20)
+	pm.text('Scale : ', w= 45, al= 'right')
 	scale_flt = pm.floatField(v= 1, pre= 2, w= 120)
+	pm.setParent('..')
+
+	pm.rowLayout(nc= 2, adj= 2, cal= [1, 'right'], h= 20)
+	pm.text('Mirror : ', w= 45, al= 'right', en= 0)
+	pm.radioButtonGrp('mirror_radioBtnGrp', nrb= 4, la4= ['None', 'Y Z', 'Y X', 'X Z'], ad4= 1, \
+		cw4= [50, 35, 35, 35], sl= 1, en= 0)
 	pm.setParent('..')
 
 	pm.setParent('..')
@@ -180,8 +186,8 @@ def ui_main():
 	pm.formLayout(mainForm, e= 1, af= [(sep______3, 'top', 304)])
 	pm.formLayout(mainForm, e= 1, af= [(panelTxt_3, 'top', 310)])
 	pm.formLayout(mainForm, e= 1, af= [(remap_Area, 'top', 332), (remap_Area, 'left', 20)])
-	pm.formLayout(mainForm, e= 1, af= [(sep______4, 'top', 468)])
-	pm.formLayout(mainForm, e= 1, af= [(exect_Area, 'top', 476), (exect_Area, 'left', 10)])
+	pm.formLayout(mainForm, e= 1, af= [(sep______4, 'top', 488)])
+	pm.formLayout(mainForm, e= 1, af= [(exect_Area, 'top', 496), (exect_Area, 'left', 10)])
 
 
 	def maya_mqsb_switch(status, *args):
@@ -247,8 +253,8 @@ def ui_main():
 		pm.cmdScrollFieldExecuter(copypasteField, e= 1, clr= 1)
 		pm.cmdScrollFieldExecuter(copypasteField, e= 1, pst= 1)
 		addr = pm.cmdScrollFieldExecuter(copypasteField, q= 1, t= 1)
-		host = addr.split(':')[0]
-		port = addr.split(':')[1]
+		host = addr.split(':')[0] if ':' in addr else ''
+		port = addr.split(':')[1] if ':' in addr else ''
 		pm.textField(tcHost_txt, e= 1, tx= host)
 		pm.textField(tcPort_txt, e= 1, tx= port)
 	pm.button(ps_btn, e= 1, c= pasteAddr)
@@ -290,12 +296,13 @@ def ui_main():
 		sel_src = not hSrc_mqsb.isChecked()
 		sel_dis = not hTrg_mqsb.isChecked()
 		scale = pm.floatField(scale_flt, q= 1, v= 1)
+		mirror = [None, 'X', 'Z', 'Y'][pm.radioButtonGrp('mirror_radioBtnGrp' , q= 1, sl= 1) - 1]
 		if maya_mqsb.isChecked():
 			if _setConn:
-				mr.remoteRemap(beam, remapType, tirm, sel_src, sel_dis, scale)
+				mr.remoteRemap(beam, remapType, tirm, sel_src, sel_dis, scale, mirror)
 		else:
 			dis = [str(i.name()) for i in pm.textScrollList(trg_sls, q= 1, ai= 1)]
-			mr.localRemap(dis, remapType, tirm, sel_src, sel_dis, scale)
+			mr.localRemap(dis, remapType, tirm, sel_src, sel_dis, scale, mirror)
 	pm.button(remap_btn, e= 1, c= execRemap)
 
 	def dockCloseCmd(*args):
