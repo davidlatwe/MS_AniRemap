@@ -90,9 +90,12 @@ class PointA(object):
 			+ "print '= '*20\n" \
 			+ "import marshal, types;import maya.cmds as cmds;" \
 			+ "tf= marshal.loads('" + tf + "'.decode('base64'));" \
-			+ "teleFunc = types.FunctionType(tf, globals(), 'teleFunc');" \
-			+ "exec(%s, globals());" % mod \
-			+ "result = teleFunc(%s);" % arg[2:-2] \
+			+ "teleFunc = types.FunctionType(tf, globals(), 'teleFunc');\n" \
+			+ "try:\n" \
+			+ "	exec(%s, globals())\n" % mod \
+			+ "	result = teleFunc(%s)\n" % arg[2:-2] \
+			+ "except Exception, e:\n" \
+			+ "	print '[!!!] ERROR: ' + str(e)\n" \
 			+ "cmds.optionVar(sv= ('teleFuncResult', str(result)))"
 		self.cmdSend(msg)
 		# retrieve result

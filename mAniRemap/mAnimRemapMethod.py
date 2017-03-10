@@ -93,12 +93,13 @@ def wireup(cvp, ctrl, scale, mirror):
 	def keyMirror(attr, cvNew, mirror):
 		"""
 		"""
-		# Translate
-		if attr.startswith('translate' + mirror):
-			pm.scaleKey(cvNew, vs= -1, vp= 0, ssk= False)
-		# Rotation
-		if attr.startswith('rotate' + mirror):# and not attr.startswith('rotate' + mirror):
-			pm.scaleKey(cvNew, vs= -1, vp= 0, ssk= False)
+		for axis in mirror:
+			# Translate
+			if axis.startswith('t') and attr.startswith('translate' + axis[-1].upper()):
+				pm.scaleKey(cvNew, vs= -1, vp= 0, ssk= False)
+			# Rotation
+			if axis.startswith('r') and attr.startswith('rotate' + axis[-1].upper()):
+				pm.scaleKey(cvNew, vs= -1, vp= 0, ssk= False)
 
 
 	for cat in cvp:
@@ -120,3 +121,5 @@ def wireup(cvp, ctrl, scale, mirror):
 					pm.setAttr(disCat, l= True)
 			else:
 				pass
+
+	return 0

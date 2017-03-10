@@ -2,6 +2,7 @@
 
 import pymel.core as pm
 import mAnimRemapMethod as md; reload(md)
+import json
 
 
 def remoteRemap(tel, remapType, tirm, sel_src, sel_dis, scale= None, mirror= None):
@@ -17,25 +18,28 @@ def remoteRemap(tel, remapType, tirm, sel_src, sel_dis, scale= None, mirror= Non
 	mod = '''
 	from __main__ import *
 	import pymel.core as pm
-	import mAniRemap; reload(mAniRemap)
-	import mAniRemap.mAnimRemapMethod as md; reload(md)
 	'''
 	dis = eval(tel.funcSend(md.lsController, sel_dis, None, mod= mod))
 	# gen map
 	keyMap = md.drawKeyMap(remapType, src, dis)
-	#return
+	# mirror map
+	mirrorMap = {}
+	if mirror:
+		mirrorMapPath = 'O:/201609_MaydayMv/Maya/assets/crowd/soldierA_OA/soldierA_mirrorMap.json'
+		with open(mirrorMapPath) as mirrorMapJson:
+			mirrorMap = json.load(mirrorMapJson)
 	# link up
 	mod = '''
 	from __main__ import *
 	import pymel.core as pm
-	import mAniRemap; reload(mAniRemap)
-	import mAniRemap.mAnimRemapMethod as md; reload(md)
-	import mAniRemap.mAnimCurveGen as cg; reload(cg)
+	import MS_AniRemap.mAniRemap.mAnimCurveGen as cg; reload(cg)
 	'''
 	tel.cmdSend('cmds.undoInfo(ock= 1)')
 	for ctrl in keyMap:
 		cvp = md.packup(src[ctrl], tirm)
-		tel.funcSend(md.wireup, cvp, keyMap[ctrl], scale, mirror, mod= mod)
+		ctb = ctrl.split('|')[-1].split(':')[-1]
+		mir = mirrorMap[ctb] if mirrorMap and mirrorMap.has_key(ctb) else []
+		tel.funcSend(md.wireup, cvp, keyMap[ctrl], scale, mir, mod= mod)
 	tel.cmdSend('cmds.undoInfo(cck= 1)')
 	tel.cmdSend('cmds.warning("[ !!! ] AniRemap: DONE.")')
 

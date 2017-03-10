@@ -2,14 +2,14 @@
 
 import pymel.core as pm
 from functools import partial
-import mQtGui; reload(mQtGui)
-import mQtGui.muiSwitchBox as mqsb; reload(mqsb)
-import mQtGui.mGetQt as mqt; reload(mqt)
-import mTeleport; reload(mTeleport)
-import mTeleport.pointA as pA; reload(pA)
-import mTeleport.pointB as pB; reload(pB)
-import mAniRemap; reload(mAniRemap)
-import mAniRemap.mAnimRemap as mr; reload(mr)
+from .. import mQtGui; reload(mQtGui)
+from ..mQtGui import muiSwitchBox as mqsb; reload(mqsb)
+from ..mQtGui import mGetQt as mqt; reload(mqt)
+from .. import mTeleport; reload(mTeleport)
+from ..mTeleport import pointA as pA; reload(pA)
+from ..mTeleport import pointB as pB; reload(pB)
+from .. import mAniRemap; reload(mAniRemap)
+import mAnimRemap as mr; reload(mr)
 
 
 def ui_main():
@@ -160,9 +160,9 @@ def ui_main():
 	pm.setParent('..')
 
 	pm.rowLayout(nc= 2, adj= 2, cal= [1, 'right'], h= 20)
-	pm.text('Mirror : ', w= 45, al= 'right', en= 0)
+	pm.text('Mirror : ', w= 45, al= 'right', en= 1)
 	pm.radioButtonGrp('mirror_radioBtnGrp', nrb= 4, la4= ['None', 'Y Z', 'Y X', 'X Z'], ad4= 1, \
-		cw4= [50, 35, 35, 35], sl= 1, en= 0)
+		cw4= [50, 35, 35, 35], sl= 1, en= 1)
 	pm.setParent('..')
 
 	pm.setParent('..')
@@ -301,7 +301,7 @@ def ui_main():
 			if _setConn:
 				mr.remoteRemap(beam, remapType, tirm, sel_src, sel_dis, scale, mirror)
 		else:
-			dis = [str(i.name()) for i in pm.textScrollList(trg_sls, q= 1, ai= 1)]
+			dis = [str(i) for i in pm.textScrollList(trg_sls, q= 1, ai= 1)]
 			mr.localRemap(dis, remapType, tirm, sel_src, sel_dis, scale, mirror)
 	pm.button(remap_btn, e= 1, c= execRemap)
 
