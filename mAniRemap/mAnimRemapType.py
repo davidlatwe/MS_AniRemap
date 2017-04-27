@@ -8,7 +8,7 @@ def remapNameMatch(src, dis):
 	"""
 	def rmNS(dagPath):
 		''' Flip TEST '''
-		#'''
+		'''
 		dp = []
 		for dag in dagPath.split('|'):
 			cd = dag.split(':')[-1]
@@ -19,9 +19,10 @@ def remapNameMatch(src, dis):
 				fd = cd[:-2] + '_R'
 			dp.append(fd)
 		return '|'.join(dp)
+		'''
 		
 		''' clean up src namespace and leave basename '''
-		#return '|'.join([ dag.split(':')[-1] for dag in dagPath.split('|') ])
+		return '|'.join([ dag.split(':')[-1] for dag in dagPath.split('|') ])
 
 	keyMap = {}
 	for ctrl in src:
